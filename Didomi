@@ -1,0 +1,244 @@
+<script>try {console.log("Setting up didomi config"); window.didomiConfig = {languages: {default: document.documentElement.lang.substr(0,2), enabled: [document.documentElement.lang.substr(0,2)]}}} catch (e) { console.error("Error setting up Didomi config"); window.didomiConfig = {languages: {default: 'en', enabled: ['nl', 'fr', 'en', 'de']}}};</script>
+
+<script id="cmp" src="https://sdk.privacy-center.org/41d652ec-4b4f-4722-8de8-53f39705d783/loader.js?target=jobs.belgiantrain.be" type="text/javascript" async></script>
+<script type="text/javascript">
+
+$(window).load(function() {
+$(document).ready(function () {
+
+//Didomi CMP fixed by Nikhil Singh
+
+function playVideoAndHideOverlay(overlay) {
+console.log("Playing video and hiding overlay");
+var iframe = overlay.querySelector('iframe[data-src]');
+if (iframe) {
+var src = iframe.getAttribute('data-src');
+iframe.setAttribute('src', src);
+console.log("Iframe source set to: " +src);
+} else {
+console.log("Iframe not found in overlay");
+}
+overlay.querySelectorAll('.didomi-popup-notice-optout-type, .embed-responsive.embed-responsive-16by9, .video-consent-overlay, .map-overlay').forEach(function(element) {
+element.style.display = "none";
+});
+document.querySelectorAll('.overlay-cust').forEach(function(element) {
+element.style.display = "none";
+})
+console.log("Overlay elements hidden");
+}
+
+
+function setPositiveConsentStatusForVendor(vendorId) {
+console.log("Setting positive consent status for vendor: " + vendorId);
+var purposes = Didomi.getVendorById(vendorId).purposeIds;
+var transaction = Didomi.openTransaction();
+transaction.enableVendor(vendorId);
+transaction.enablePurposes(...purposes); 
+transaction.commit();
+console.log("Consent status updated for vendor: " + vendorId);
+}
+
+
+ 
+window.didomiOnReady = window.didomiOnReady || [];
+window.didomiOnReady.push(function (Didomi) {
+console.log("Didomi SDK is Ready");
+
+ 
+Didomi.getObservableOnUserConsentStatusForVendor('c:youtube')
+.subscribe(function (consentStatus) {
+console.log("Youtube consent status: " + consentStatus);
+
+if (consentStatus === true) {
+console.log("Consent granted for Youtube and maps");
+
+//var elems = document.getElementsByClassName('overlay-cust');
+//for (var i=0;i<elems.length;i+=1){
+ //elems[i].style.display = 'none';
+//}
+
+document.querySelectorAll('.video-consent-overlay, .map-overlay,  .overlay-cust').forEach(function(overlay) {
+overlay.style.display = 'none';
+});
+
+document.querySelectorAll('.youtube-container').forEach(function(video) {
+playVideoAndHideOverlay(video);
+});
+} else {
+console.log("Consent not granted for youtube videos and maps");
+}
+});
+
+Didomi.getObservableOnUserConsentStatusForVendor('didomi:google')
+.subscribe(function (consentStatus) {
+if (consentStatus === true) {
+document.querySelectorAll('.map-overlay').forEach(function(map) {
+map.style.display = 'none';
+});
+} 
+});
+});
+
+
+document.querySelectorAll('.video-consent-overlay-accept-button').forEach(function(button) {
+button.addEventListener('click', function() {
+console.log("Accept button clicked");
+setPositiveConsentStatusForVendor('c:youtube');
+setPositiveConsentStatusForVendor('didomi:google');
+});
+});
+});
+});
+</script>
+ 
+<style>
+
+.youtube-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    overflow: hidden;
+}
+
+.youtube-container > iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.youtube-container > .video-consent-overlay,
+.map-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.didomi-popup-notice-optout-type {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.didomi-popup-notice-optout-type img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* Specific handling for mobile devices */
+@media screen and (max-width: 480px) {
+    .didomi-popup-notice-optout-type img {
+        width: auto;
+        height: 100%;
+        min-width: 100%;
+        object-fit: contain;
+        transform: translate(-50%, -50%) scale(1.2); /* Slight zoom for better text visibility */
+    }
+    
+    
+
+/* Handle embed-responsive cases */
+.embed-responsive {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    overflow: hidden;
+}
+
+.embed-responsive .embed-responsive-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.overlay-cust {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+</style>
+
+<link rel="stylesheet" href="https://unpkg.com/swiper@6.0.1/swiper-bundle.min.css">
+<script src="https://unpkg.com/swiper@6.0.1/swiper-bundle.min.js"></script>
+<style>body.talentlanding-page,body.content-page {display: none;}</style>
+<link rel='stylesheet' href='https://unpkg.com/swiper@7.0.1/swiper-bundle.min.css'>
+<script type="text/javascript">
+ 
+$(window).load(function() {
+$(document).ready(function () {
+    // Handler for .ready() called.
+    $('html, body').animate({
+        scrollTop: $('#header').offset().top
+    }, 800);
+});
+ 
+ 
+    $("#outershell").append('<div id="loader"></div>');
+//window.scrollTo(0, 0);
+    $("div.innerheaderbottom").remove();
+  //  $('a.CybotCookiebotDialogBodyButton').css({"width": "unset"});
+//cookiedisable placeholder for video
+ 
+$("div.6a43f79a788a4db0.row.videocomponent.videocomponent6a43f79a788a4db0.backgroundcolor0957caebb6223b44.linkcolor.linkhovercolor5a39ba5dffba603b.displayDTM.marginTopCustom.marginBottomCustom.marginRightCustom.marginLeftCustom").children("div:nth-child(1)").html('<div class="youtube-container"><iframe class="embed-responsive-item" data-src="https://www.youtube.com/embed/MF_5obRl9kw" title="video" width="100%" height="420px" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe><div class="video-consent-overlay"></div></div></div>')
+ 
+    var currentLang = document.documentElement.lang.substr(0,2);
+
+    var mapUrl = (currentLang === 'fr') 
+        ? "https://rmk-map-2.jobs2web.com/map/?esid=bliQp%2FW0I%2BaerbdyhvewTQ%3D%3D&locale=fr_FR&uselcl=true&watercolor=%23d4f1f9&jobdomain=jobs.belgiantrain.be&maplbljob=Offre+d%E2%80%99emploi&maplbljobs=offres+d%E2%80%99emploi&mapbtnsearchjobs=Rechercher+les+offres&centerpoint=50.4,4.4&mapzoom=8&keyword=&regionCode=BE&mapbrand=&limittobrand=false&parentURL=http%3A%2F%2Fjobs.belgiantrain.be%2F%3Flocale%3Dfr_FR"
+        : "https://rmk-map-2.jobs2web.com/map/?esid=bliQp%2FW0I%2BaerbdyhvewTQ%3D%3D&locale=nl_NL&uselcl=true&watercolor=%23d4f1f9&jobdomain=jobs.belgiantrain.be&maplbljob=Job&maplbljobs=jobs&mapbtnsearchjobs=Zoek+Jobs&centerpoint=51,4.2&mapzoom=9&keyword=&regionCode=BE&mapbrand=&limittobrand=false&parentURL=http%3A%2F%2Fjobs.belgiantrain.be%2F";
+    $("div.map.googlejobmapf97e5b9ec7d57470.displayDTM.marginTopCustom.marginBottomCustom.marginRightCustom.marginLeftCustom").children("div:nth-child(5)").html('<div class="youtube-container"><iframe id="iframe" data-src="' + mapUrl + '" title="video" width="640" height="360" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe><div class="map-overlay"></div></div></div>');
+
+ 
+var iframe = document.getElementsByTagName('iframe');
+   $("div.map-overlay").append('<div class="didomi-popup-notice-optout-type" style="position: relative;min-height: 280px;display: flex;justify-content: center;align-items: center;"><img src="https://rmkcdn.successfactors.com/c4145913/e99ff423-ffde-43e9-8e6a-e.jpg" style="background-size:100% ; background-repeat:no-repeat; background-position:center; width: 100%;height: 30% "><a href="javascript:Didomi.notice.show()" style="position: absolute;top: 0;right: 0;bottom: 0;left: 0;opacity: 0;"></a></div>');
+
+$("div.mbImageComponent").children("div.image-component").children("div:nth-child(2)").children("div").removeClass("embed-responsive")
+
+  $("div.video-consent-overlay").append('<div class="didomi-popup-notice-optout-type" style="position: relative;min-height: 285px;display: flex;justify-content: center;align-items: center;"><img src="https://rmkcdn.successfactors.com/c4145913/3e4a5e47-b9e9-4d3e-8172-5.jpg" style="background-size:100% ; background-repeat:no-repeat; width:100%; "><a href="javascript:Didomi.notice.show()" style="position: absolute;top: 0;right: 0;bottom: 0;left: 0;opacity: 0;"></a></div>');
+
+ $("div.embed-responsive.embed-responsive-16by9").append('<div class="didomi-popup-notice-optout-type overlay-cust" style="position: relative;min-height: 285px;display: flex;justify-content: center;align-items: center;"><img src="https://rmkcdn.successfactors.com/c4145913/3e4a5e47-b9e9-4d3e-8172-5.jpg" style="background-size:100% ; background-repeat:no-repeat; width:100%; "><a href="javascript:Didomi.notice.show()" style="position: absolute;top: 0;right: 0;bottom: 0;left: 0;opacity: 0;"></a></div>');
+
+  $("div.videoBlock").children("div:nth-child(1)").append('<div class="didomi-popup-notice-optout-type" style="position: relative;min-height: 285px;display: flex;justify-content: center;align-items: center;"><img src="https://rmkcdn.successfactors.com/c4145913/3e4a5e47-b9e9-4d3e-8172-5.jpg" style="background-size:100% ; background-repeat:no-repeat; width:100%; "><a href="javascript:Didomi.notice.show()" style="position: absolute;top: 0;right: 0;bottom: 0;left: 0;opacity: 0;"></a></div>');
+
+ 
+
+  $("iframe.embed-responsive-item").attr("data-vendor","c:youtube");
+  $("iframe#iframe").attr("data-vendor","didomi:google");
+ 
+    
+    //$("div.videocomponent").children("div").children("div").css({"background-image":"url(https://rmkcdn.successfactors.com/c4145913/3e4a5e47-b9e9-4d3e-8172-5.jpg)","background-size":"100%","background-repeat":"no-repeat"});
+    $("div.videoFirstDiv").children("div").css({"background-image":"url(https://rmkcdn.successfactors.com/c4145913/3e4a5e47-b9e9-4d3e-8172-5.jpg)","background-size":"100%","background-repeat":"no-repeat"});
+   // $("div.videoBlock").children("div:nth-child(1)").css({"background-image":"url(https://rmkcdn.successfactors.com/c4145913/3e4a5e47-b9e9-4d3e-8172-5.jpg)","background-size":"100%","background-repeat":"no-repeat"});
